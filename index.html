@@ -5,88 +5,172 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Percentage Change Calculation</title>
 <style>
+:root {
+    --bg: #0e1220;
+    --bg-glow: #1a2147;
+    --surface: #171c30;
+    --field: #0f1426;
+    --border: #2a3152;
+    --text: #e8ebf7;
+    --muted: #8b93b5;
+    --accent: #6c7cff;
+    --accent-hover: #8795ff;
+    --gain: #3ddbb0;
+    --loss: #ff6b81;
+}
+
+* { box-sizing: border-box; }
+
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    font-family: "Segoe UI", system-ui, -apple-system, Arial, sans-serif;
+    color: var(--text);
     margin: 0;
-    padding: 0;
+    min-height: 100vh;
+    background:
+        radial-gradient(900px 500px at 50% -10%, var(--bg-glow), transparent 70%),
+        var(--bg);
 }
 
 .container {
     max-width: 400px;
-    margin: 50px auto;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin: 60px auto;
+    padding: 28px 24px 24px;
+    background-color: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+}
+
+h1 {
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+    margin: 0 0 24px;
+}
+
+label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 6px;
 }
 
 input {
     width: 100%;
-    padding: 8px;
-    margin-bottom: 10px;
-    box-sizing: border-box;
+    padding: 11px 12px;
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--text);
+    background-color: var(--field);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(108, 124, 255, 0.25);
+}
+
+.actions {
+    display: flex;
+    gap: 10px;
 }
 
 button {
-    width: 48%;
-    padding: 8px;
-    margin-right: 2%;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
+    flex: 1;
+    padding: 11px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    border-radius: 8px;
     cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s, color 0.2s;
 }
 
-button:hover {
-    background-color: #0056b3;
+button:focus-visible {
+    outline: 2px solid var(--accent-hover);
+    outline-offset: 2px;
+}
+
+.calc {
+    background-color: var(--accent);
+    color: #0b0f24;
+    border: 1px solid var(--accent);
+}
+
+.calc:hover {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
 }
 
 .reset {
-    width: 48%;
-    padding: 8px;
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
+    background-color: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
 }
 
 .reset:hover {
-    background-color: #a71d2a;
+    color: var(--loss);
+    border-color: var(--loss);
 }
 
 .result {
-    margin-top: 10px;
+    margin: 20px 0 0;
+    padding: 14px;
+    text-align: center;
+    font-size: 1.05rem;
+    color: var(--muted);
+    background-color: var(--field);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    min-height: 52px;
 }
+
+.result.gain { color: var(--gain); border-color: rgba(61, 219, 176, 0.4); }
+.result.loss { color: var(--loss); border-color: rgba(255, 107, 129, 0.4); }
 </style>
 </head>
 <body>
 <div class="container">
-    <h1 style="text-align: center;">Percentage Change Calculation</h1>
+    <h1>Percentage Change Calculation</h1>
     <label for="buy">Buy:</label>
     <input type="number" id="buy">
     <label for="sell">Sell:</label>
     <input type="number" id="sell">
-    <button onclick="calculatePercentage()">Calculate Percentage</button>
-    <button class="reset" onclick="resetForm()">Reset</button>
+    <div class="actions">
+        <button class="calc" onclick="calculatePercentage()">Calculate Percentage</button>
+        <button class="reset" onclick="resetForm()">Reset</button>
+    </div>
     <p class="result" id="result"></p>
 </div>
 <script>
 function calculatePercentage() {
     var buy = parseFloat(document.getElementById('buy').value);
     var sell = parseFloat(document.getElementById('sell').value);
+    var result = document.getElementById('result');
+
+    result.className = 'result';
+
+    if (isNaN(buy) || isNaN(sell) || buy === 0) {
+        result.innerText = 'Enter a Buy value (not 0) and a Sell value.';
+        return;
+    }
 
     var changePercentage = ((sell - buy) / buy) * 100;
 
-    document.getElementById('result').innerText = 'Percentage change: ' + changePercentage.toFixed(2) + '%';
+    result.innerText = 'Percentage change: ' + changePercentage.toFixed(2) + '%';
+    if (changePercentage > 0) result.classList.add('gain');
+    else if (changePercentage < 0) result.classList.add('loss');
 }
 
 function resetForm() {
     document.getElementById('buy').value = '';
     document.getElementById('sell').value = '';
-    document.getElementById('result').innerText = '';
+    var result = document.getElementById('result');
+    result.innerText = '';
+    result.className = 'result';
 }
 </script>
 </body>
